@@ -9,7 +9,7 @@ interface CityItemProps {
 }
 
 function CityItem({ city }: CityItemProps) {
-  const { currentCity } = useCities();
+  const { currentCity, deleteCity } = useCities();
   const {
     cityName,
     emoji,
@@ -17,6 +17,12 @@ function CityItem({ city }: CityItemProps) {
     id,
     position: { lat, lng },
   } = city;
+
+  async function handleDelete(event: React.MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    await deleteCity(id!);
+  }
 
   return (
     <li>
@@ -29,7 +35,9 @@ function CityItem({ city }: CityItemProps) {
         <span className={styles.emoji}>{emoji}</span>
         <h3 className={styles.name}>{cityName}</h3>
         <time className={styles.date}>{formatDate(date)}</time>
-        <button className={styles.deleteBtn}>&times;</button>
+        <button className={styles.deleteBtn} onClick={handleDelete}>
+          &times;
+        </button>
       </Link>
     </li>
   );

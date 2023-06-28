@@ -2,12 +2,12 @@ export interface CityType {
   cityName: string;
   country: string;
   emoji: string;
-  date: string;
+  date: Date;
   notes: string;
   position: Position;
-  id: number;
+  id?: number;
 }
 export interface Position {
-  lat: number;
-  lng: number;
+  lat: string | null;
+  lng: string | null;
 }
