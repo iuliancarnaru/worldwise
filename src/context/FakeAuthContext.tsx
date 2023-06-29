@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer } from "react";
+import { createContext, useContext, useMemo, useReducer } from "react";
 
 const FAKE_USER = {
   name: "Jack",
@@ -61,18 +61,16 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: "LOGOUT" });
   }
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated,
-        login,
-        logout,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = useMemo(() => {
+    return {
+      user,
+      isAuthenticated,
+      login,
+      logout,
+    };
+  }, [isAuthenticated, user]);
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 function useAuth() {

@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useReducer,
 } from "react";
 import { CityType } from "../types";
@@ -22,6 +23,7 @@ const CitiesContext = createContext<CitiesContextType>({} as CitiesContextType);
 //   cities: CityType[];
 //   isLoading: boolean;
 //   error: string;
+//   currentCity: CityType;
 // };
 
 const initialState = {
@@ -122,27 +124,30 @@ function CitiesProvider({ children }: { children: React.ReactNode }) {
     getCities();
   }, []);
 
-  const getCity = useCallback(async (id: string) => {
-    if (Number(id) === currentCity.id) return;
+  const getCity = useCallback(
+    async (id: string) => {
+      if (Number(id) === currentCity.id) return;
 
-    dispatch({ type: ActionKind.LOADING });
+      dispatch({ type: ActionKind.LOADING });
 
-    try {
-      const res = await fetch(`http://localhost:4000/cities/${id}`);
-      const data = await res.json();
+      try {
+        const res = await fetch(`http://localhost:4000/cities/${id}`);
+        const data = await res.json();
 
-      dispatch({
-        type: ActionKind.CITY_LOADED,
-        payload: data,
-      });
-    } catch (err) {
-      console.error((err as Error).message);
-      dispatch({
-        type: ActionKind.REJECTED,
-        payload: (err as Error).message,
-      });
-    }
-  }, []);
+        dispatch({
+          type: ActionKind.CITY_LOADED,
+          payload: data,
+        });
+      } catch (err) {
+        console.error((err as Error).message);
+        dispatch({
+          type: ActionKind.REJECTED,
+          payload: (err as Error).message,
+        });
+      }
+    },
+    [currentCity.id]
+  );
 
   const createCity = useCallback(async (newCity: CityType) => {
     dispatch({ type: ActionKind.LOADING });
@@ -191,19 +196,19 @@ function CitiesProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const value = useMemo(() => {
+    return {
+      currentCity,
+      cities,
+      isLoading,
+      getCity,
+      createCity,
+      deleteCity,
+    };
+  }, [cities, createCity, currentCity, deleteCity, getCity, isLoading]);
+
   return (
-    <CitiesContext.Provider
-      value={{
-        currentCity,
-        cities,
-        isLoading,
-        getCity,
-        createCity,
-        deleteCity,
-      }}
-    >
-      {children}
-    </CitiesContext.Provider>
+    <CitiesContext.Provider value={value}>{children}</CitiesContext.Provider>
   );
 }
 
